@@ -6,7 +6,26 @@
 
 import { getUserIds } from "./common.mjs";
 
-window.onload = function () {
-  const users = getUserIds();
-  document.querySelector("body").innerText = `There are ${users.length} users`;
-};
+// This function adds user options to the dropdown menu
+function populateUserDropdown() {
+  const userSelect = document.getElementById("user-select"); 
+  const users = getUserIds();  // Get the list of user IDs (it's an array)
+
+  // Default option
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Select a user";
+  userSelect.appendChild(defaultOption);
+
+  // Loop through the user IDs and create an <option> for each
+  users.forEach((userId) => {
+    const option = document.createElement("option");
+    option.value = userId;
+    option.textContent = `User ${userId}`;
+    userSelect.appendChild(option);
+  });
+}
+
+populateUserDropdown();
+
+export { populateUserDropdown };
