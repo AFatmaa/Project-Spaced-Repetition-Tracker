@@ -28,4 +28,33 @@ function populateUserDropdown() {
 
 populateUserDropdown();
 
+const addTopicForm = document.getElementById("add-topic");
+const topicNameInput = document.getElementById("topic-name");
+const dateInput = document.getElementById("start-date");
+
+// Sets the date input's value to today's date
+function setDefaultDate() {
+   dateInput.valueAsDate = new Date();
+}
+
+function handleTopicSubmit(event) {
+ event.preventDefault();
+
+ const topicName = topicNameInput.value.trim(); // .trim() removes whitespace from the topic name
+ const startDate = dateInput.value;
+
+ if (!topicName || !startDate) {
+   alert("Please enter both topic name and start date.");
+   return;
+ }
+
+ addTopicForm.reset();
+ setDefaultDate();
+}
+
+setDefaultDate();
+
+// This ensures the function runs when the user either clicks the submit button or presses the Enter key.
+addTopicForm.addEventListener("submit", handleTopicSubmit);
+
 export { populateUserDropdown };
