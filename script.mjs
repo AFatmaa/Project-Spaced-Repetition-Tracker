@@ -86,4 +86,14 @@ function getUserInfo (userId){
 
 populateUserDropdown();
 
+window.onload = () => {
+  document.getElementById("userData").style.display = "none";
+  document.getElementById("NoData").style.display = "none";
+};
+
+document.getElementById("user-select").addEventListener("change", (e) => {
+  const selectedUserId = e.target.value;
+  getUserInfo(selectedUserId);
+});
+
 export { populateUserDropdown,getUserInfo };
