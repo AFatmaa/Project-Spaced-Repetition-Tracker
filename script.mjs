@@ -5,6 +5,7 @@
 // You can't open the index.html file using a file:// URL.
 
 import { getUserIds } from "./common.mjs";
+import { getData } from "./storage.mjs";
 
 // This function adds user options to the dropdown menu
 function populateUserDropdown() {
