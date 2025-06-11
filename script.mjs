@@ -5,6 +5,7 @@
 // You can't open the index.html file using a file:// URL.
 
 import { getUserIds } from "./common.mjs";
+import { getData } from "./storage.mjs";  
 
 // This function adds user options to the dropdown menu
 function populateUserDropdown() {
@@ -26,6 +27,63 @@ function populateUserDropdown() {
   });
 }
 
+// Display user data in table or show message if no data
+function getUserInfo (userId){
+  const noDataMsg = document.getElementById("NoData");
+  const table = document.getElementById("userData");
+  const tbody = document.getElementById("userInfo");
+
+  //clear previous data
+
+  tbody.innerHTML = "";
+
+  // if user data is not select no table and message 
+  if (!userId){
+    table.style.display = "none";
+    noDataMsg.style.display = "none";
+    return;
+  }
+
+  const userData = getData(userId);
+
+  if (userData !==null && userData.length >0)
+  {
+    noDataMsg.style.display = "none";
+    table.style.display = "table";
+
+    //populate table rows
+    userData.forEach((item,index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = 
+                      `<td>${index +1}</td>
+                      <td>${item.topic}</td>
+                      <td>${item.date}</td>
+                      <td>
+                        <button class="delete-btn">Delete</button>
+                      </td>`;
+
+        const deleteBtn = row.querySelector(".delete-btn");
+        deleteBtn.addEventListener("click",() =>{
+          row.remove();
+        });
+
+          tbody.appendChild(row);
+    }
+
+  );
+  table.style.display = "table";
+  noDataMsg.style.display ="none";
+  
+  }
+  else 
+  {
+    table.style.display = "none";
+    noDataMsg.style.display = "block";
+    noDataMsg.textContent = "No agenda available"
+  }
+
+}
+
 populateUserDropdown();
 
-export { populateUserDropdown };
+export { populateUserDropdown,getUserInfo };
