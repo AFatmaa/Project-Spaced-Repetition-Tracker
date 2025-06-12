@@ -53,14 +53,8 @@ function handleTopicSubmit(event) {
    return;
  }
 
-// Temporary dates used for testing
-const revisionDates = [
-  "2025-07-26",
-  "2025-08-26",
-  "2025-10-26",
-  "2026-01-26",
-  "2026-07-26"
-];
+// Generate spaced repetition dates
+const revisionDates = calculateReviewDates(startDate);
 
 // Prepare agenda items to save
 const agendaItems = revisionDates.map(date => ({
@@ -154,14 +148,20 @@ function calculateReviewDates(startDateStr)
   for (const item of schedule)
   {
     const newDate = new Date(startDate);
-    newDate.setDate(newDate.getDate()+item.days);
+
+    // Set default values in case some fields are undefined
+    const days = item.days || 0;
+    const months = item.months || 0;
+    const years = item.years || 0;
+
+    newDate.setDate(newDate.getDate()+days);
 
     const originalDay = newDate.getDate();
-    newDate.setMonth(newDate.getMonth()+item.months);
+    newDate.setMonth(newDate.getMonth()+months);
     if (newDate.getDate()< originalDay){
       newDate.setDate(0);
     }
-    newDate.setFullYear(newDate.getFullYear()+item.years);
+    newDate.setFullYear(newDate.getFullYear()+years);
 
     revisionDates.push(formatDate(newDate))
 
