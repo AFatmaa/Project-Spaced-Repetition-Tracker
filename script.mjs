@@ -200,7 +200,7 @@ export function calculateReviewDates(startDateStr)
     const originalDay = newDate.getUTCDate();
     newDate.setUTCMonth(newDate.getUTCMonth()+months);
     if (newDate.getUTCDate()< originalDay){
-      newDate.seUTCDate(0);
+      newDate.setUTCDate(0);
     }
     newDate.setUTCFullYear(newDate.getUTCFullYear()+years);
 
