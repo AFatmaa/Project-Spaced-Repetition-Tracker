@@ -115,6 +115,43 @@ function getUserInfo (userId){
 
 }
 
+// function to calculate dates
+
+function calculateReviewDates(startDateStr)
+{
+  // convert string to Date object 
+  const startDate = new Date(startDateStr);
+
+  // Define schedule 
+  const schedule = [{days:7},{months:1},{months:3},{months:6},{years:1}];
+
+  // for put the result of dates
+  const revisionDates = [];  
+
+  for (const item of schedule)
+  {
+    const newDate = new Date(startDate);
+    newDate.setDate(newDate.getDate()+item.days);
+
+    const originalDay = newDate.getDate();
+    newDate.setMonth(newDate.getMonth()+item.months);
+    if (newDate.getDate()< originalDay){
+      newDate.setDate(0);
+    }
+    newDate.setFullYear(newDate.getFullYear()+item.years);
+
+    revisionDates.push(formatDate(newDate))
+
+  }
+  return revisionDates;
+}
+
+// function to format date like YYYY-MM-DD only and remove time
+function formatDate(date)
+{
+  return date.toISOString().split("T")[0];
+}
+
 window.onload = () => {
   document.getElementById("userData").style.display = "none";
   document.getElementById("NoData").style.display = "none";
