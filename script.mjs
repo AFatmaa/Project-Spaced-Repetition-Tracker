@@ -75,6 +75,22 @@ const agendaItems = revisionDates.map(date => ({
 // This ensures the function runs when the user either clicks the submit button or presses the Enter key.
 addTopicForm.addEventListener("submit", handleTopicSubmit);
 
+// Returns a filtered and chronologically sorted list of agenda items
+function getSortedFutureAgenda(data) {
+  if (!data || !Array.isArray(data)) return [];
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return data
+    .filter(item => {  // Only keep future or today’s topics
+      const itemDate = new Date(item.date);
+      itemDate.setHours(0, 0, 0, 0);
+      return itemDate >= today;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort from earliest to latest
+}
+
 // Display user data in table or show message if no data
 function getUserInfo (userId){
   const noDataMsg = document.getElementById("NoData");
@@ -94,13 +110,16 @@ function getUserInfo (userId){
 
   const userData = getData(userId);
 
+  // Filter out past dates and sort future agenda items by date
+  const futureAgenda = getSortedFutureAgenda(userData);
+
   if (userData !==null && userData.length >0)
   {
     noDataMsg.style.display = "none";
     table.style.display = "table";
 
     //populate table rows
-    userData.forEach((item,index) => {
+    futureAgenda.forEach((item,index) => {
       const row = document.createElement("tr");
       row.innerHTML = 
                       `<td>${index +1}</td>
