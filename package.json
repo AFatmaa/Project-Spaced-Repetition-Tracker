@@ -1,0 +1,28 @@
+{
+  "name": "project-spaced-repetition-tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AFatmaa/Project-Spaced-Repetition-Tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AFatmaa/Project-Spaced-Repetition-Tracker/issues"
+  },
+  "homepage": "https://github.com/AFatmaa/Project-Spaced-Repetition-Tracker#readme",
+  "devDependencies": {
+    "jest": "^30.0.0",
+    "jest-environment-jsdom": "^30.0.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom"
+  }
+}
