@@ -156,7 +156,7 @@ function getUserInfo (userId){
 function calculateReviewDates(startDateStr)
 {
   // convert string to Date object 
-  const startDate = new Date(startDateStr);
+  const startDate = new Date(startDateStr + 'T00:00:00Z');
 
   // Define schedule 
   const schedule = [{days:7},{months:1},{months:3},{months:6},{years:1}];
@@ -173,14 +173,14 @@ function calculateReviewDates(startDateStr)
     const months = item.months || 0;
     const years = item.years || 0;
 
-    newDate.setDate(newDate.getDate()+days);
+    newDate.setUTCDate(newDate.getUTCDate()+days);
 
-    const originalDay = newDate.getDate();
-    newDate.setMonth(newDate.getMonth()+months);
-    if (newDate.getDate()< originalDay){
-      newDate.setDate(0);
+    const originalDay = newDate.getUTCDate();
+    newDate.setUTCMonth(newDate.getUTCMonth()+months);
+    if (newDate.getUTCDate()< originalDay){
+      newDate.seUTCDate(0);
     }
-    newDate.setFullYear(newDate.getFullYear()+years);
+    newDate.setUTCFullYear(newDate.getUTCFullYear()+years);
 
     revisionDates.push(formatDate(newDate))
 
