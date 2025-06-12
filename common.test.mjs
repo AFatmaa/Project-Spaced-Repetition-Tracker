@@ -1,7 +1,8 @@
-import { getUserIds } from "./common.mjs";
-import assert from "node:assert";
-import test from "node:test";
+import { getUserIds } from './common.mjs';
 
-test("User count is correct", () => {
-  assert.equal(getUserIds().length, 5);
+describe('Common utility functions', () => {
+  test('getUserIds should return an array with 5 user IDs', () => {
+    const users = getUserIds();
+    expect(users).toHaveLength(5);
+  });
 });

@@ -175,7 +175,7 @@ function getUserInfo (userId){
 
 // function to calculate dates
 
-function calculateReviewDates(startDateStr)
+export function calculateReviewDates(startDateStr)
 {
   // convert string to Date object 
   const startDate = new Date(startDateStr + 'T00:00:00Z');
