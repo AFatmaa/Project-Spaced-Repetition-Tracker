@@ -5,7 +5,7 @@
 // You can't open the index.html file using a file:// URL.
 
 import { getUserIds } from "./common.mjs";
-import { getData, addData } from "./storage.mjs";
+import { getData, addData, clearData } from "./storage.mjs";
 
 // This function adds user options to the dropdown menu
 function populateUserDropdown() {
@@ -131,7 +131,29 @@ function getUserInfo (userId){
 
         const deleteBtn = row.querySelector(".delete-btn");
         deleteBtn.addEventListener("click",() =>{
-          row.remove();
+
+        // get users data from storage
+        const allUserData = getData(userId);
+
+        if (!allUserData) return; // do nothing if there's no agenda
+
+        // create a new array containing all items except for the one to be deleted
+        // match both the topic and the date to ensure we delete the correct item
+        const updatedUserData = allUserData.filter(dataItem => {
+          return dataItem.topic !== item.topic || dataItem.date !== item.date;
+        });
+
+        // clear the users old data from storage
+        clearData(userId);
+        
+        // add updated data back to storage, if any items remain
+        if (updatedUserData.length > 0) {
+            addData(userId, updatedUserData);
+        }
+
+        // redraw the table with the latest data from storage
+        getUserInfo(userId);
+
         });
 
           tbody.appendChild(row);
