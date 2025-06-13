@@ -137,10 +137,15 @@ function getUserInfo(userId) {
  */
 function createAgendaRow(item, index, userId) {
   const row = document.createElement("tr");
+
+  // Create a Date object from the date string stored in the item
+  const displayDate = new Date(item.date + 'T00:00:00Z');
+  const formattedDate = formatDateForDisplay(displayDate);
+  
   row.innerHTML = `
     <td>${index + 1}</td>
     <td>${item.topic}</td>
-    <td>${item.date}</td>
+    <td>${formattedDate}</td>
     <td>
       <button class="delete-btn">Delete</button>
     </td>`;
@@ -205,19 +210,43 @@ export function calculateReviewDates(startDateStr)
     }
     newDate.setUTCFullYear(newDate.getUTCFullYear()+years);
 
-    revisionDates.push(formatDate(newDate))
+    revisionDates.push(formatDateForStorage(newDate))
 
   }
   return revisionDates;
 }
 
 /**
- * Formats a Date object into a "YYYY-MM-DD" string.
+ * Formats a Date object into a machine-readable "YYYY-MM-DD" string for storage.
  * @param {Date} date - The date object to format.
  * @returns {string} The formatted date string.
  */
-function formatDate(date) {
+function formatDateForStorage(date) {
   return date.toISOString().split("T")[0];
+}
+
+/**
+ * Formats a Date object into a human-readable "day-th Month Year" string for display.
+ * @param {Date} date - The date object to format.
+ * @returns {string} The formatted date string.
+ */
+function formatDateForDisplay(date) {
+  const day = date.getUTCDate();
+  const month = date.toLocaleString('en-GB', { month: 'long', timeZone: 'UTC' });
+  const year = date.getUTCFullYear();
+  
+  let suffix;
+  if (day % 10 === 1 && day !== 11) {
+    suffix = "st";
+  } else if (day % 10 === 2 && day !== 12) {
+    suffix = "nd";
+  } else if (day % 10 === 3 && day !== 13) {
+    suffix = "rd";
+  } else {
+    suffix = "th";
+  }
+
+  return `${day}${suffix} ${month} ${year}`;
 }
 
 // Handles form submission via click or Enter key
