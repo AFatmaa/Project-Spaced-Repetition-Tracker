@@ -1,9 +1,18 @@
 import { getUserIds } from "./common.mjs";
 import { getData, addData, clearData } from "./storage.mjs";
 
-// This function adds user options to the dropdown menu
+// --- CONSTANTS ---
+const userSelect = document.getElementById("user-select"); 
+const addTopicForm = document.getElementById("add-topic");
+const topicNameInput = document.getElementById("topic-name");
+const dateInput = document.getElementById("start-date");
+const noDataMsg = document.getElementById("NoData");
+const table = document.getElementById("userData");
+const tbody = document.getElementById("userInfo");
+
+
+// Populates the user selection dropdown with user IDs from common.mjs.
 function populateUserDropdown() {
-  const userSelect = document.getElementById("user-select"); 
   const users = getUserIds();  // Get the list of user IDs (it's an array)
 
   // Default option
@@ -21,55 +30,53 @@ function populateUserDropdown() {
   });
 }
 
-const addTopicForm = document.getElementById("add-topic");
-const topicNameInput = document.getElementById("topic-name");
-const dateInput = document.getElementById("start-date");
-
 // Sets the date input's value to today's date
 function setDefaultDate() {
    dateInput.valueAsDate = new Date();
 }
 
+/**
+ * Handles the form submission for adding a new topic.
+ * @param {Event} event - The form submission event.
+ */
 function handleTopicSubmit(event) {
- event.preventDefault();
+  event.preventDefault();
 
- const userId = document.getElementById('user-select').value;
- const topicName = topicNameInput.value.trim(); // .trim() removes whitespace from the topic name
- const startDate = dateInput.value;
+  const userId = userSelect.value;
+  // Remove leading/trailing whitespace to prevent saving empty or messy topic names.
+  const topicName = topicNameInput.value.trim(); 
+  const startDate = dateInput.value;
 
- if (!userId) {
-  alert("Please select a user first!");
-  return;
+  if (!userId) {
+    alert("Please select a user first!");
+    return;
+  }
+
+  if (!topicName || !startDate) {
+    alert("Please enter both topic name and start date.");
+    return;
+  }
+
+  const revisionDates = calculateReviewDates(startDate);
+  const agendaItems = revisionDates.map(date => ({
+    topic: topicName,
+    date: date,
+  }));
+
+  addData(userId, agendaItems);
+  getUserInfo(userId);
+
+  addTopicForm.reset();
+  setDefaultDate();
+
 }
 
- if (!topicName || !startDate) {
-   alert("Please enter both topic name and start date.");
-   return;
- }
-
-// Generate spaced repetition dates
-const revisionDates = calculateReviewDates(startDate);
-
-// Prepare agenda items to save
-const agendaItems = revisionDates.map(date => ({
-  topic: topicName,
-  date: date,
-}));
-
-// Save agenda items for the selected user
- addData(userId, agendaItems);
-
-// Refresh the agenda display
- getUserInfo(userId);
-
- addTopicForm.reset();
- setDefaultDate();
-}
-
-// This ensures the function runs when the user either clicks the submit button or presses the Enter key.
-addTopicForm.addEventListener("submit", handleTopicSubmit);
-
-// Returns a filtered and chronologically sorted list of agenda items
+/**
+ * Takes a raw list of agenda items and returns a new list containing only
+ * future or today's items, sorted chronologically.
+ * @param {Array<object>} data - The raw user data from storage.
+ * @returns {Array<object>} A sorted and filtered list of agenda items.
+ */
 function getSortedFutureAgenda(data) {
   if (!data || !Array.isArray(data)) return [];
 
@@ -85,12 +92,11 @@ function getSortedFutureAgenda(data) {
     .sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort from earliest to latest
 }
 
-// Display user data in table or show message if no data
+/**
+ * Displays the user's future agenda in a table or shows a message if no data exists.
+ * @param {string} userId - The ID of the user whose data to display.
+ */
 function getUserInfo(userId) {
-  const noDataMsg = document.getElementById("NoData");
-  const table = document.getElementById("userData");
-  const tbody = document.getElementById("userInfo");
-
   //clear previous data
   tbody.innerHTML = "";
 
@@ -121,6 +127,14 @@ function getUserInfo(userId) {
   }
 }
 
+/**
+ * Creates a table row (<tr>) for a single agenda item.
+ * It also attaches a click event to the delete button for that row.
+ * @param {object} item - The agenda item containing {topic, date}.
+ * @param {number} index - The display number for the row (e.g., 1, 2, 3).
+ * @param {string} userId - The ID of the current user, needed for deletion.
+ * @returns {HTMLTableRowElement} The fully constructed table row element.
+ */
 function createAgendaRow(item, index, userId) {
   const row = document.createElement("tr");
   row.innerHTML = `
@@ -142,7 +156,7 @@ function createAgendaRow(item, index, userId) {
       return dataItem.topic !== item.topic || dataItem.date !== item.date;
     });
 
-    // Replace the old data with the new, filtered data
+    // To update storage, clear all data for the user and add back the filtered list.
     clearData(userId);
     if (updatedUserData.length > 0) {
       addData(userId, updatedUserData);
@@ -155,10 +169,14 @@ function createAgendaRow(item, index, userId) {
   return row;
 }
 
-// function to calculate dates
+/**
+ * Calculates a series of future revision dates based on a start date.
+ * @param {string} startDateStr - The start date in "YYYY-MM-DD" format.
+ * @returns {Array<string>} A list of formatted revision dates.
+ */
 export function calculateReviewDates(startDateStr)
 {
-  // convert string to Date object 
+  // Using 'Z' (Zulu time) ensures we work in UTC, preventing timezone-related bugs
   const startDate = new Date(startDateStr + 'T00:00:00Z');
 
   // Define schedule 
@@ -179,6 +197,9 @@ export function calculateReviewDates(startDateStr)
 
     const originalDay = newDate.getUTCDate();
     newDate.setUTCMonth(newDate.getUTCMonth()+months);
+
+    // Handle month overflow e.g., adding 1 month to Jan 31 would result in Mar 3
+    // This resets the date to the last day of the correct previous month e.g., Feb 29
     if (newDate.getUTCDate()< originalDay){
       newDate.setUTCDate(0);
     }
@@ -190,21 +211,30 @@ export function calculateReviewDates(startDateStr)
   return revisionDates;
 }
 
-// function to format date like YYYY-MM-DD only and remove time
+/**
+ * Formats a Date object into a "YYYY-MM-DD" string.
+ * @param {Date} date - The date object to format.
+ * @returns {string} The formatted date string.
+ */
 function formatDate(date) {
   return date.toISOString().split("T")[0];
 }
 
+// Handles form submission via click or Enter key
+addTopicForm.addEventListener("submit", handleTopicSubmit);
+
+// Triggers data fetching when a new user is selected from the dropdown
+document.getElementById("user-select").addEventListener("change", (e) => {
+  const selectedUserId = e.target.value;
+  getUserInfo(selectedUserId);
+});
+
+// Actions to perform once the page is fully loaded
 window.onload = () => {
   document.getElementById("userData").style.display = "none";
   document.getElementById("NoData").style.display = "none";
   populateUserDropdown();
   setDefaultDate();
 };
-
-document.getElementById("user-select").addEventListener("change", (e) => {
-  const selectedUserId = e.target.value;
-  getUserInfo(selectedUserId);
-});
 
 export { getUserInfo };
