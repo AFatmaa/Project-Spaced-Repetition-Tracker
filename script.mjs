@@ -144,8 +144,7 @@ function createAgendaRow(item, index, userId) {
   
   row.innerHTML = `
     <td>${index + 1}</td>
-    <td>${item.topic}</td>
-    <td>${formattedDate}</td>
+    <td>${item.topic}, ${formattedDate}</td>
     <td>
       <button class="delete-btn">Delete</button>
     </td>`;
