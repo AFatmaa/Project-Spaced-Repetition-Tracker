@@ -111,46 +111,48 @@ function getUserInfo(userId) {
 
     //populate table rows
     futureAgenda.forEach((item,index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = 
-                      `<td>${index +1}</td>
-                      <td>${item.topic}</td>
-                      <td>${item.date}</td>
-                      <td>
-                        <button class="delete-btn">Delete</button>
-                      </td>`;
-
-        const deleteBtn = row.querySelector(".delete-btn");
-        deleteBtn.addEventListener("click", () => {
-        const allUserData = getData(userId);
-
-        if (!allUserData) return; // do nothing if there's no agenda
-
-        // create a new array containing all items except for the one to be deleted
-        // match both the topic and the date to ensure we delete the correct item
-        const updatedUserData = allUserData.filter(dataItem => {
-          return dataItem.topic !== item.topic || dataItem.date !== item.date;
-        });
-
-        // clear the users old data from storage
-        clearData(userId);
-        
-        // add updated data back to storage, if any items remain
-        if (updatedUserData.length > 0) {
-            addData(userId, updatedUserData);
-        }
-
-        // redraw the table with the latest data from storage
-        getUserInfo(userId);
-      });
-      
+      const row = createAgendaRow(item, index, userId);      
       tbody.appendChild(row);
     });  
   } else {
     table.style.display = "none";
     noDataMsg.style.display = "block";
-    noDataMsg.textContent = "No agenda available"
+    noDataMsg.textContent = "No agenda available for this user."
   }
+}
+
+function createAgendaRow(item, index, userId) {
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td>${index + 1}</td>
+    <td>${item.topic}</td>
+    <td>${item.date}</td>
+    <td>
+      <button class="delete-btn">Delete</button>
+    </td>`;
+
+  const deleteBtn = row.querySelector(".delete-btn");
+  deleteBtn.addEventListener("click", () => {
+    // Get the most current data from storage before deleting
+    const allUserData = getData(userId);
+    if (!allUserData) return;
+
+    // Create a new array excluding the item to be deleted
+    const updatedUserData = allUserData.filter(dataItem => {
+      return dataItem.topic !== item.topic || dataItem.date !== item.date;
+    });
+
+    // Replace the old data with the new, filtered data
+    clearData(userId);
+    if (updatedUserData.length > 0) {
+      addData(userId, updatedUserData);
+    }
+
+    // Refresh the view to show the change
+    getUserInfo(userId);
+  });
+
+  return row;
 }
 
 // function to calculate dates
