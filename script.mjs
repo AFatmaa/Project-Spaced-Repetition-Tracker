@@ -1,9 +1,3 @@
-// This is a placeholder file which shows how you can access functions defined in other files.
-// It can be loaded into index.html.
-// You can delete the contents of the file once you have understood how it works.
-// Note that when running locally, in order to open a web page which uses modules, you must serve the directory over HTTP e.g. with https://www.npmjs.com/package/http-server
-// You can't open the index.html file using a file:// URL.
-
 import { getUserIds } from "./common.mjs";
 import { getData, addData, clearData } from "./storage.mjs";
 
@@ -92,13 +86,12 @@ function getSortedFutureAgenda(data) {
 }
 
 // Display user data in table or show message if no data
-function getUserInfo (userId){
+function getUserInfo(userId) {
   const noDataMsg = document.getElementById("NoData");
   const table = document.getElementById("userData");
   const tbody = document.getElementById("userInfo");
 
   //clear previous data
-
   tbody.innerHTML = "";
 
   // if user data is not select no table and message 
@@ -109,12 +102,10 @@ function getUserInfo (userId){
   }
 
   const userData = getData(userId);
-
-  // Filter out past dates and sort future agenda items by date
   const futureAgenda = getSortedFutureAgenda(userData);
 
-  if (userData !==null && userData.length >0)
-  {
+  // check if there is data to display
+  if (futureAgenda && futureAgenda.length > 0) {
     noDataMsg.style.display = "none";
     table.style.display = "table";
 
@@ -130,9 +121,7 @@ function getUserInfo (userId){
                       </td>`;
 
         const deleteBtn = row.querySelector(".delete-btn");
-        deleteBtn.addEventListener("click",() =>{
-
-        // get users data from storage
+        deleteBtn.addEventListener("click", () => {
         const allUserData = getData(userId);
 
         if (!allUserData) return; // do nothing if there's no agenda
@@ -153,28 +142,18 @@ function getUserInfo (userId){
 
         // redraw the table with the latest data from storage
         getUserInfo(userId);
-
-        });
-
-          tbody.appendChild(row);
-    }
-
-  );
-  table.style.display = "table";
-  noDataMsg.style.display ="none";
-  
-  }
-  else 
-  {
+      });
+      
+      tbody.appendChild(row);
+    });  
+  } else {
     table.style.display = "none";
     noDataMsg.style.display = "block";
     noDataMsg.textContent = "No agenda available"
   }
-
 }
 
 // function to calculate dates
-
 export function calculateReviewDates(startDateStr)
 {
   // convert string to Date object 
@@ -186,8 +165,7 @@ export function calculateReviewDates(startDateStr)
   // for put the result of dates
   const revisionDates = [];  
 
-  for (const item of schedule)
-  {
+  for (const item of schedule) {
     const newDate = new Date(startDate);
 
     // Set default values in case some fields are undefined
@@ -211,8 +189,7 @@ export function calculateReviewDates(startDateStr)
 }
 
 // function to format date like YYYY-MM-DD only and remove time
-function formatDate(date)
-{
+function formatDate(date) {
   return date.toISOString().split("T")[0];
 }
 
@@ -228,4 +205,4 @@ document.getElementById("user-select").addEventListener("change", (e) => {
   getUserInfo(selectedUserId);
 });
 
-export { populateUserDropdown, getUserInfo };
+export { getUserInfo };
